@@ -1,0 +1,2 @@
+module ReviewFetcherHelper
+end

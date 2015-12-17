@@ -1,0 +1,24 @@
+<%= form_tag reviews_path, :method => :get do %>
+  <%= text_field_tag :product_id, params[:product_id] %>
+  <%= text_field_tag :search_term, params[:search_term] %>
+  <%= submit_tag 'Fetch reviews' %>
+<% end %>
+
+<% if @reviews_fetcher.success_fetch? %>
+  <div>
+    <ul>
+      <!-- # TODO: Zhenya Kostev should implement view for review -->
+      <% @reviews_fetcher.reviews.each do |review| %>
+        <li><%= review.title %></li>
+      <% end %>
+    </ul>
+  </div>
+<% else %>
+  <div>
+    <ul>
+      <% @reviews_fetcher.errors.each do |error_msg| %>
+        <li><%= error_msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
