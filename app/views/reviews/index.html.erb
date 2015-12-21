@@ -3,11 +3,11 @@
 </header>
 <section class="row">
   <%= form_tag reviews_path, :method => :get do %>
-    <div class="form-group col-md-10 col-md-offset-1 <%= 'has-error' if @reviews_fetcher && !@reviews_fetcher.success_fetch? %>">
+    <div class="form-group col-md-10 col-md-offset-1 <%= 'has-error' if params[:commit] && !@reviews_fetcher.success_fetch? %>">
       <%= text_field_tag :product_id, params[:product_id],
                          :class => "form-control",
                          :placeholder => 'Please enter product ID' %>
-      <% if @reviews_fetcher && !@reviews_fetcher.success_fetch? %>
+      <% if params[:commit] && !@reviews_fetcher.success_fetch? %>
         <div class="alert-error">
           <ul>
             <% @reviews_fetcher.errors.each do |error_msg| %>
