@@ -8,6 +8,7 @@ gem 'coffee-rails', '~> 4.1.0'
 gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder', '~> 2.0'
+gem 'unicorn'
 
 group :development, :test do
   gem 'byebug'
@@ -17,6 +18,12 @@ group :development, :test do
   gem 'pry'
   gem 'pry-rails'
   gem 'pry-doc'
+  gem 'capistrano', :require => false
+  gem 'capistrano-rails',   '~> 1.1', require: false
+  gem 'capistrano-bundler', '~> 1.1', require: false
+  gem 'capistrano-rvm', :require => false
+  gem "capistrano-scm-gitcopy", :require => false
+  gem 'capistrano-unicorn-nginx', :require => false
 end
 
 group :test do
