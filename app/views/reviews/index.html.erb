@@ -29,23 +29,31 @@
 <section class="row">
   <h1 class="text-center h2">Reviews</h1>
   <% if @reviews_fetcher.success_fetch? %>
-    <ul class="list-unstyled">
-      <% @reviews_fetcher.reviews.each do |review| %>
-        <li>
-          <section class="well col-md-10 col-md-offset-1">
-            <h1 class="h3 text-center"><%= review.title %></h1>
+    <% if @reviews_fetcher.reviews.any? %>
+      <ul class="list-unstyled">
+        <% @reviews_fetcher.reviews.each do |review| %>
+          <li>
+            <section class="well col-md-10 col-md-offset-1">
+              <h1 class="h3 text-center"><%= review.title %></h1>
 
-            <div class="text-justify">
-              <%= review.body %>
-            </div>
-            <div class="text-sm text-center" style="color: green">
-              Other reviews attrs can be fetched
-            </div>
-          </section>
-        </li>
-      <% end %>
-    </ul>
+              <div class="text-justify">
+                <%= review.body %>
+              </div>
+              <div class="text-sm text-center" style="color: green">
+                Other reviews attrs can be fetched
+              </div>
+            </section>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <section class="well col-md-10 col-md-offset-1">
+        <p class="text-center">There are no reviews for this search. Please try different search.</p>
+      </section>
+    <% end %>
   <% else %>
-    <p class="text-center">There are no reviews for this search. Please try different search.</p>
+    <section class="well col-md-10 col-md-offset-1">
+      <p class="text-center">Nothing to display. Some error occured. Please review error messages.</p>
+    </section>
   <% end %>
 </section>

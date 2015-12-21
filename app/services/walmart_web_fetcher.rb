@@ -1,5 +1,6 @@
 require 'nokogiri'
 require 'open-uri'
+
 class WalmartWebFetcher
   WALMART_REVIEWS_URL_TEMPLATE = 'https://www.walmart.com/reviews/product/:product_id'.freeze
   CSS_CLASS_FOR_REVIEW = '.customer-review-body'.freeze
@@ -10,37 +11,30 @@ class WalmartWebFetcher
   }.freeze
 
   attr_reader :product_id
-  attr_accessor :current_page, :parsed_pages, :all_reviews_fetched
+  attr_accessor :current_page, :parsed_pages
   def initialize(product_id)
     @product_id = product_id
     @parsed_pages = {}
     @current_page = 1
-    @all_reviews_fetched = false
   end
 
   def fetch
     return @parsed_data if @parsed_data
     @parsed_data = []
-
-    while !all_reviews_fetched do
-      @parsed_data += fetch_reviews_from_walmart
+    until last_page? do
+      @parsed_data += fetch_reviews_from_page
       @current_page += 1
     end
 
-    @parsed_data
+    @parsed_data += fetch_reviews_from_page
   end
 
   private
 
-  def fetch_reviews_from_walmart
-    check_last_page
-    fetch_reviews_from_page
-  end
-
-  def check_last_page
+  def last_page?
     last_pagination_link = parsed_reviews_page(current_page).css(PAGINATION_LINK_SELECTOR).last
 
-    @all_reviews_fetched = last_pagination_link.nil? || last_pagination_link.attributes['class'].text =~ /active/
+    last_pagination_link.nil? || last_pagination_link.attributes['class'].text =~ /active/
   end
 
   def fetch_reviews_from_page
@@ -49,8 +43,12 @@ class WalmartWebFetcher
     end
   end
 
-  def parsed_reviews_page(page_number = 1)
-    parsed_pages[page_number] ||= Nokogiri::HTML(open(page_url(page_number)))
+  def parsed_reviews_page(page_number)
+    parsed_pages[page_number] ||= Nokogiri::HTML(open_page(page_number))
+  end
+
+  def open_page(page_number)
+    open(page_url(page_number))
   end
 
   def page_url(page_number)

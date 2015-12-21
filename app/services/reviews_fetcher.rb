@@ -1,10 +1,11 @@
 class ReviewsFetcher
-  attr_reader :search_term, :product_id
-  attr_accessor :errors, :fetched
+  attr_reader :search_term, :product_id, :review_source
+  attr_accessor :errors
 
   def initialize(params)
     @search_term = params[:search_term]
     @product_id = params[:product_id]
+    @review_source = 'Walmart' #can be extracted from params if other sources will be provided
     @errors = []
     @fetched = false
   end
@@ -20,13 +21,15 @@ class ReviewsFetcher
   private
 
   def fetch
-    return true if fetched
+    return true if @fetched
     store_data_in_db(fetch_reviews_data_from_web) if valid_params? && no_data_in_db?
-    fetched = true #do not fetch twice
+    @fetched = true #do not fetch twice
   end
 
   def search_reviews
-    Review.where(:product_id => product_id).where('title LIKE ? OR body LIKE ?', "%#{search_term}%", "%#{search_term}%")
+    Review.where(:web_source => review_source).
+      where(:product_id => product_id).
+      where('title LIKE ? OR body LIKE ?', "%#{search_term}%", "%#{search_term}%")
   end
 
   #if there would be multiple sources this method should be changed
@@ -35,38 +38,36 @@ class ReviewsFetcher
   end
 
   #pure SQL in order to speed up inserts. It can be done in various ways
-=begin
-  Review.connection.execute <<-SQL
+  def store_data_in_db(parsed_data)
+    return if parsed_data.blank?
+
+    Review.connection.execute <<-SQL
       INSERT INTO reviews (title, body, web_source, product_id, created_at, updated_at)
         VALUES #{raw_values(parsed_data).join(", ")}
-  SQL
-=end
-  def store_data_in_db(parsed_data)
-    Review.transaction do
-      parsed_data.each do |attrs|
-        Review.create(attrs.merge(:product_id => product_id, :web_source => 'Walmart'))
-      end
-    end
+    SQL
   end
 
   #pure SQL in order to speed up inserts. It can be done in various ways
-=begin
   def raw_values(parsed_data)
     timestamp = Time.zone.now.to_s(:db)
 
     parsed_data.map do |attrs|
-      "('#{attrs[:title]}', '#{attrs[:body]}', 'Walmart', '#{product_id}', '#{timestamp}', '#{timestamp}')"
+      <<-SQL
+        ("#{sanitize(attrs[:title])}", "#{sanitize(attrs[:body])}", "Walmart", "#{product_id}", "#{timestamp}", "#{timestamp}")
+      SQL
     end
   end
-=end
+
+  def sanitize(attr)
+    Review.send(:sanitize_sql, attr).gsub(/"/, "'")
+  end
 
   def no_data_in_db?
-    Review.where(:product_id => product_id).empty?
+    Review.uncached { Review.where(:web_source => review_source).where(:product_id => product_id).empty? }
   end
 
   # all possible validations goes here
   def valid_params?
-    #errors << 'Please enter search term' if search_term.blank?
     errors << 'Please enter product id' if product_id.blank?
 
     errors.empty?
