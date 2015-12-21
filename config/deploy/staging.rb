@@ -2,9 +2,9 @@ set :deploy_to, '/home/test_app/test'
 role :app, %w{test_app@188.166.39.104}
 role :web, %w{test_app@188.166.39.104}
 role :db,  %w{test_app@188.166.39.104}
-server "188.166.39.104", user: 'root', roles: [:app, :web, :db], :primary => true
+server "188.166.39.104", user: 'test_app', roles: [:app, :web, :db], :primary => true
 set :branch, "master" # TODO: staging branch should be set
-set :user, "root"
+set :user, "test_app"
 set :rails_env, :staging
 set :stage, :staging
 set :rvm_type, :system

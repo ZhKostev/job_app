@@ -9,16 +9,13 @@ gem 'jquery-rails'
 gem 'turbolinks'
 gem 'jbuilder', '~> 2.0'
 gem 'unicorn'
-gem 'quiet_assets'
-
-group :development, :test do
-  gem 'byebug'
-end
 
 group :development, :test do
   gem 'pry'
   gem 'pry-rails'
   gem 'pry-doc'
+  gem 'byebug'
+  gem 'quiet_assets'
   gem 'capistrano', :require => false
   gem 'capistrano-rails',   '~> 1.1', require: false
   gem 'capistrano-bundler', '~> 1.1', require: false
