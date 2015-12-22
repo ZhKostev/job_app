@@ -59,7 +59,7 @@ class ReviewsFetcher
   end
 
   def sanitize(attr)
-    Review.send(:sanitize_sql, attr).gsub(/"/, "'")
+    Review.send(:sanitize_sql, attr).try(:gsub, /"/, "'").presence || ''
   end
 
   def no_data_in_db?
