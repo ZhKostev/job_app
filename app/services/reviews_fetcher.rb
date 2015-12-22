@@ -41,10 +41,12 @@ class ReviewsFetcher
   def store_data_in_db(parsed_data)
     return if parsed_data.blank?
 
-    Review.connection.execute <<-SQL
-      INSERT INTO reviews (title, body, web_source, product_id, created_at, updated_at)
-        VALUES #{raw_values(parsed_data).join(", ")}
-    SQL
+    parsed_data.each_slice(50) do |parsed_data_chunk|
+      Review.connection.execute <<-SQL
+        INSERT INTO reviews (title, body, web_source, product_id, created_at, updated_at)
+          VALUES #{raw_values(parsed_data_chunk).join(", ")}
+      SQL
+    end
   end
 
   #pure SQL in order to speed up inserts. It can be done in various ways
